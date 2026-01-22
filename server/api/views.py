@@ -3,8 +3,36 @@ from django.http import HttpResponse, JsonResponse
 from api.models import DataPoint
 from django.utils import timezone
 
+
+
 def data_list(request):
-    data_points = DataPoint.objects.all().order_by('-ts')[:10]
+    DEFAULT_LIMIT = 10
+    MAX_LIMIT = 50
+    limit_str = request.GET.get("limit")
+    if limit_str is None:
+        limit = DEFAULT_LIMIT
+    else:
+        try:
+            limit = int(limit_str)
+        except ValueError:
+            return JsonResponse({"status": "error", 
+                                 "error": {
+                                     "code": "invalid_parameter", 
+                                     "message": "Invalid limit parameter"
+                                     }
+                                }, status=400)
+        if limit <= 0:
+            return JsonResponse({
+                "status": "error",
+                "error": {
+                    "code": "invalid_limit",
+                    "message": "limit must be a positive integer"
+                        }
+                }, status=400)
+        if limit > MAX_LIMIT:
+            limit = MAX_LIMIT
+    data_points = DataPoint.objects.all().order_by('-ts')[:limit]
+
     data = []
     for dp in data_points:
         data.append({
