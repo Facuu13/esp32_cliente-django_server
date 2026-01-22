@@ -3,3 +3,5 @@
 server/server/__pycache__/
 server/api/__pycache__/
 server/api/migrations/__pycache__/
+server/api/management/__pycache__/
+server/api/management/commands/__pycache__/
